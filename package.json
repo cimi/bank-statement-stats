@@ -2,7 +2,8 @@
   "name": "hsbc-stats",
   "version": "0.0.0",
   "dependencies": {
-    "cheerio": "^0.17.0"
+    "cheerio": "^0.17.0",
+    "moment": "^2.7.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

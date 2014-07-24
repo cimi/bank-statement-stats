@@ -12,14 +12,29 @@ function extractTable(content) {
     return $(this).attr('summary') === summary;
   });
 }
-// payment:
-//  0 => date
-//  1 => type
-//  2 => name
-//  3 => outgoing amount
-//  4 => incoming amount
-//  5 => balance
-//  6 => debit?
+
+function processPayment(year) {
+  // returns a function that can convert a payment
+  // from an array of values to an object with named
+  // fields
+  var processPaymentDate = function (year, payment_date) {
+    // a sample date format on the statement page would be Jun 13
+    // we need to compose it with the year before parsing
+    return moment(new Date(year + ' ' + payment_date)).format('YYYY-MM-DD');
+  };
+
+  return function (payment) {
+    return {
+      date:       processPaymentDate(year, payment[0]),
+      type:       payment[1],
+      name:       payment[2],
+      outgoing:   payment[3],
+      incoming:   payment[4],
+      balance:    payment[5],
+      debt:       (payment[6] === 'D' ? true : false)
+    };
+  };
+}
 
 function extractPayments(table) {
   var rows = table.find('tbody tr')
@@ -41,13 +56,6 @@ function extractPayments(table) {
 // CR => credit (incoming payment)
 // ((( => contactless payment
 
-function processPaymentDate(year) {
-  return function (payment) {
-    payment[0] = moment(new Date(year + ' ' + payment[0])).format('YYYY-MM-DD');
-    return payment;
-  };
-}
-
 fs.readdir(dir, function (err, files) {
   files.forEach(function (file) {
     var filePath = dir + '/' + file
@@ -55,7 +63,7 @@ fs.readdir(dir, function (err, files) {
       , table = extractTable(fs.readFileSync(filePath).toString())
       , year = file.split('-')[0];
 
-    var payments = extractPayments(table).map(processPaymentDate(year));
+    var payments = extractPayments(table).map(processPayment(year));
 
     fs.writeFileSync(outputDir + '/' + file,
       JSON.stringify(payments, null, '  '));

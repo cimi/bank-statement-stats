@@ -57,7 +57,10 @@ function extractPayments(table) {
 // ((( => contactless payment
 
 fs.readdir(dir, function (err, files) {
-  files.forEach(function (file) {
+  files.filter(function (file) {
+    // only process files ending in HTML
+    return file.substr(file.length - ".html".length) == ".html"
+  }).forEach(function (file) {
     var filePath = dir + '/' + file
       , outputDir = './app/data'
       , table = extractTable(fs.readFileSync(filePath).toString())

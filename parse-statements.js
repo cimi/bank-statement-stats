@@ -17,10 +17,10 @@ function processPayment(year) {
   // returns a function that can convert a payment
   // from an array of values to an object with named
   // fields
-  var processPaymentDate = function (year, payment_date) {
+  var processPaymentDate = function (year, paymentDate) {
     // a sample date format on the statement page would be Jun 13
     // we need to compose it with the year before parsing
-    return moment(new Date(year + ' ' + payment_date)).format('YYYY-MM-DD');
+    return moment(new Date(year + ' ' + paymentDate)).format('YYYY-MM-DD');
   };
 
   return function (payment) {

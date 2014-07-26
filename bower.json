@@ -1,9 +1,0 @@
-{
-  "name": "hsbc-stats",
-  "private": true,
-  "dependencies": {
-    "bootstrap-sass-official": "~3.1.0",
-    "jquery": "~1.11.0"
-  },
-  "devDependencies": {}
-}

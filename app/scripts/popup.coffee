@@ -2,4 +2,9 @@
 
 console.log('\'Allo \'Allo! Popup')
 
-chrome.tabs.create({url: "index.html"});
+$(document).ready ->
+  console.log $('a')
+  console.log $('#viewer')
+  $('#viewer').click ->
+    chrome.tabs.create({url: "index.html"});
+  true

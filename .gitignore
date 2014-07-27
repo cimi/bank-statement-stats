@@ -7,4 +7,5 @@ app/bower_components
 test/bower_components
 package
 statements/
+app/scripts/*.js
 !**/README

@@ -9,4 +9,5 @@ package
 statements/
 app/scripts/compiled/
 app/styles/*.css
+app/scripts/*.js
 !**/README

@@ -33,14 +33,14 @@ module.exports = function (grunt) {
                 tasks: ['bowerInstall']
             },
             coffee: {
-                files: ['<%= config.app %>/scripts/{,*/}*.{coffee,litcoffee,coffee.md}'],
+                files: ['<%= config.app %>/scripts/src/{,*/}*.{coffee,litcoffee,coffee.md}'],
                 tasks: ['coffee:chrome'],
                 options: {
                     livereload: true
                 }
             },
             compass: {
-                files: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
+                files: ['<%= config.app %>/styles/src/{,*/}*.{scss,sass}'],
                 tasks: ['compass:chrome']
             },
             gruntfile: {
@@ -135,18 +135,18 @@ module.exports = function (grunt) {
             chrome: {
                 files: [{
                     expand: true,
-                    cwd: '<%= config.app %>/scripts',
+                    cwd: '<%= config.app %>/scripts/src',
                     src: '{,*/}*.{coffee,litcoffee,coffee.md}',
-                    dest: '<%= config.app %>/scripts/compiled',
+                    dest: '<%= config.app %>/scripts',
                     ext: '.js'
                 }]
             },
             dist: {
                 files: [{
                     expand: true,
-                    cwd: '<%= config.app %>/scripts',
+                    cwd: '<%= config.app %>/scripts/src',
                     src: '{,*/}*.{coffee,litcoffee,coffee.md}',
-                    dest: '<%= config.app %>/scripts/compiled',
+                    dest: '<%= config.app %>/scripts',
                     ext: '.js'
                 }]
             },
@@ -164,7 +164,7 @@ module.exports = function (grunt) {
          // Compiles Sass to CSS and generates necessary files if requested
         compass: {
             options: {
-                sassDir: '<%= config.app %>/styles',
+                sassDir: '<%= config.app %>/styles/src',
                 cssDir: '<%= config.dist %>/styles',
                 generatedImagesDir: '<%= config.dist %>/images/generated',
                 imagesDir: '<%= config.app %>/images',
@@ -198,7 +198,7 @@ module.exports = function (grunt) {
                 ]
             },
             sass: {
-                src: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
+                src: ['<%= config.app %>/styles/src/{,*/}*.{scss,sass}'],
                 ignorePath: '<%= config.app %>/bower_components/'
             }
         },

@@ -8,11 +8,22 @@
         <!-- endbuild -->
         <!-- build:css styles/main.css -->
         <link href="styles/main.css" rel="stylesheet">
+        <link href="styles/popup.css" rel="stylesheet">
         <!-- endbuild -->
     </head>
-    <body>
-        <h1>'Allo, 'Allo!</h1>
-        <a id="viewer">Click me!</a>
+    <body id="popup">
+        <p>If you are on your bank account's statement page, click "Save" to add the data in the statement to your stats</p>
+        <div class="menu">
+            <div class="btn-group">
+                <button type="button" class="btn btn-default btn-lg">
+                  <span class="glyphicon glyphicon-floppy-save"></span> Save
+                </button>
+                <a href="index.html" target="_blank" type="button" class="btn btn-default btn-lg">
+                  <span class="glyphicon glyphicon-gbp"></span> Stats
+                </a>
+            </div>
+        </div>
+
         <!-- build:js scripts/vendor.js -->
         <!-- bower:js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>

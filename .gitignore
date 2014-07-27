@@ -8,4 +8,5 @@ test/bower_components
 package
 statements/
 app/scripts/compiled/
+app/styles/*.css
 !**/README

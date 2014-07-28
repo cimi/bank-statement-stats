@@ -10,5 +10,5 @@ chrome.tabs.onUpdated.addListener (tabId) ->
 console.log('\'Allo \'Allo! Event Page for Page Action')
 
 chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
-  console.log("received " + request)
+  localforage.setItem "payments", request
   sendResponse({farewell: "goodbye"}) if (request.greeting == "hello")

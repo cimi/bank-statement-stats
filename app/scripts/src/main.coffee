@@ -3,7 +3,6 @@ console.log "Works!"
 
 $(document).ready () ->
   localforage.getItem "payments", (payments) ->
-    console.log payments
     $('#payments').dataTable {
         "data": payments,
         "columns": [

@@ -1,0 +1,37 @@
+[
+    {
+        "ammount": -71.18,
+        "balance": 0,
+        "date": "2013-04-30",
+        "name": "RYANAIR     224000",
+        "type": "VIS"
+    },
+    {
+        "ammount": -4.20,
+        "balance": 0,
+        "date": "2013-04-30",
+        "name": "SAINSBURYS S/MKTS",
+        "type": "VIS"
+    },
+    {
+        "ammount": -1.58,
+        "balance": 695.65,
+        "date": "2013-04-30",
+        "name": "TESCO STORES 5158",
+        "type": ")))"
+    },
+    {
+        "ammount": -30,
+        "balance": 0,
+        "date": "2013-05-01",
+        "name": "CASH NATWEST MAY01",
+        "type": "ATM"
+    },
+    {
+        "ammount": -40.85,
+        "balance": 0,
+        "date": "2013-05-01",
+        "name": "RYANAIR     224000",
+        "type": "VIS"
+    }
+]

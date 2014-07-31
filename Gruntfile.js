@@ -86,6 +86,7 @@ module.exports = function (grunt) {
             test: {
                 options: {
                     open: true,
+                    keepalive: true,
                     base: [
                         'test',
                         '<%= config.app %>'
@@ -379,6 +380,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('test', [
+        'concurrent:test',
         'connect:test',
         'mocha'
     ]);

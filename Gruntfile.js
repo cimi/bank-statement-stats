@@ -18,6 +18,7 @@ module.exports = function (grunt) {
     // Configurable paths
     var config = {
         app: 'app',
+        test: 'test',
         dist: 'dist'
     };
 
@@ -84,7 +85,7 @@ module.exports = function (grunt) {
             },
             test: {
                 options: {
-                    open: false,
+                    open: true,
                     base: [
                         'test',
                         '<%= config.app %>'
@@ -153,9 +154,9 @@ module.exports = function (grunt) {
             test: {
                 files: [{
                     expand: true,
-                    cwd: 'test/spec',
+                    cwd: '<%= config.test %>/spec/src',
                     src: '{,*/}*.coffee',
-                    dest: './spec',
+                    dest: '<%= config.test %>/spec',
                     ext: '.js'
                 }]
             }

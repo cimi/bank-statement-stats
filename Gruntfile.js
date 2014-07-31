@@ -34,8 +34,11 @@ module.exports = function (grunt) {
                 tasks: ['bowerInstall']
             },
             coffee: {
-                files: ['<%= config.app %>/scripts/src/{,*/}*.{coffee,litcoffee,coffee.md}'],
-                tasks: ['coffee:chrome'],
+                files: [
+                    '<%= config.app %>/scripts/src/{,*/}*.{coffee,litcoffee,coffee.md}',
+                    '<%= config.test %>/spec/src/{,*/}*.coffee'
+                ],
+                tasks: ['coffee:chrome', 'coffee:test'],
                 options: {
                     livereload: true
                 }
@@ -85,8 +88,8 @@ module.exports = function (grunt) {
             },
             test: {
                 options: {
-                    open: true,
-                    keepalive: true,
+                    port: 9010,
+                    open: false,
                     base: [
                         'test',
                         '<%= config.app %>'
@@ -329,8 +332,9 @@ module.exports = function (grunt) {
                 'svgmin'
             ],
             test: [
+                'coffee:chrome',
                 'coffee:test',
-                'compass:test',
+                'compass:test'
             ]
         },
 
@@ -372,18 +376,24 @@ module.exports = function (grunt) {
 
     grunt.registerTask('debug', function () {
         grunt.task.run([
-            'jshint',
+            'concurrent:test',
+            'connect:test'
+        ]);
+
+        grunt.task.run([
             'concurrent:chrome',
             'connect:chrome',
             'watch'
         ]);
     });
 
-    grunt.registerTask('test', [
-        'concurrent:test',
-        'connect:test',
-        'mocha'
-    ]);
+    grunt.registerTask('test', function () {
+        grunt.task.run([
+            'concurrent:test',
+            'connect:test',
+            'mocha',
+        ]);
+    });
 
     grunt.registerTask('build', [
         'clean:dist',
@@ -399,7 +409,6 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('default', [
-        'jshint',
         'test',
         'build'
     ]);

@@ -6,7 +6,8 @@
     "bootstrap": "~3.2.0",
     "moment": "~2.7.0",
     "localforage": "~0.9.2",
-    "datatables": "~1.10.1"
+    "datatables": "~1.10.1",
+    "underscore": "~1.6.0"
   },
   "devDependencies": {}
 }

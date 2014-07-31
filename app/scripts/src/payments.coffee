@@ -9,4 +9,12 @@ class window.Payment
     @seen = new Date();
     @guid = guid();
 
+class window.Payments
+  constructor: (@paymentList) ->
 
+  store: ->
+    groups = _.groupBy @paymentList, 'date'
+    promises = []
+    _.each groups, (group) ->
+      promises.push localforage.setItem group[0].date, group
+    Promise.all(promises)

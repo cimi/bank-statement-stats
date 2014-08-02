@@ -34,6 +34,8 @@ describe 'Payments', () ->
       localforage.getItem('payments/2013-11-13').should.eventually.have.length 2
 
   it 'should losslessly load a previously saved list of payments', () ->
-    localforage.setItem('payments/2013-11-13', sampleData[1..2]).then () ->
-      payments = Payments.load('2013-11-13')
-      assert _.isEqual(payments, sampleData[1..2])
+    localforage.setItem('payments/2013-11-13', sampleData[1..2]).then (value) ->
+      # if keys is called immediately after setItem
+      # it sometimes doesn't return anything
+      paymentsPromise = Payments.load('2013-11-13')
+      paymentsPromise.should.eventually.have.length 2

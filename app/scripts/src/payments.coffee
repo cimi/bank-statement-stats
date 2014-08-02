@@ -8,15 +8,18 @@ formatDate = (date) ->
   moment(date).format('YYYY-MM-DD')
 
 class window.Payment
+
   constructor: (@date, @name, @ammount, @balance) ->
     @seen = new Date();
     @guid = guid();
 
 class window.Payments
+  keyPrefix = "payments/"
+
   constructor: (@paymentList) ->
 
   @getKey: (item) ->
-    'payments/' + formatDate(item.date)
+    keyPrefix + formatDate(item.date)
 
   store: ->
     groups = _.groupBy @paymentList, 'date'
@@ -26,4 +29,11 @@ class window.Payments
       promises.push localforage.setItem key, group
     Promise.all(promises)
 
-  @load: ->
+  @load: (from, to) ->
+    localforage.keys().then (keys) ->
+      console.log keys
+      paymentKeys = _.filter keys, (key) -> key.indexOf(keyPrefix) == 0
+      promises = []
+      _.each paymentKeys, (paymentKey) ->
+        promises.push localforage.getItem paymentKey
+      Promise.all(promises).then (paymentMap) -> _.flatten(_.map paymentMap, _.values)

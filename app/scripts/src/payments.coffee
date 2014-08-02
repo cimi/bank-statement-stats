@@ -12,9 +12,13 @@ class window.Payment
 class window.Payments
   constructor: (@paymentList) ->
 
+  @getKey: (item) ->
+    'payments/' + item.date
+
   store: ->
     groups = _.groupBy @paymentList, 'date'
     promises = []
-    _.each groups, (group) ->
-      promises.push localforage.setItem group[0].date, group
+    _.each groups, (group) =>
+      key = @constructor.getKey group[0]
+      promises.push localforage.setItem key, group
     Promise.all(promises)

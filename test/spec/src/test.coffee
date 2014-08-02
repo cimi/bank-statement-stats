@@ -19,11 +19,15 @@ sampleData = [
   new Payment(createDateString(new Date('2013-11-17')), 'Some payment', 100, 0)
 ]
 describe 'Payments', () ->
+  it 'should create key for a Payment in the form "payments/<date>"', () ->
+    console.log(Payments.getKey sampleData[0])
+    assert Payments.getKey(sampleData[0]) == 'payments/2013-11-19'
+
   it 'should save a list of payments to localstorage, keyed by date', () ->
     localforage.clear()
 
     payments = new Payments sampleData
     promise = payments.store()
     promise.then (response) ->
-      localforage.getItem '2013-11-13', (items) ->
+      localforage.getItem 'payments/2013-11-13', (items) ->
         assert items.length == 2

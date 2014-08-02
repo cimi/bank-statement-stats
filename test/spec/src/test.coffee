@@ -56,8 +56,17 @@ describe 'Payments', () ->
     localforage.setItem('payments/2013-11-13', sampleData[1..2]).then () ->
       # without this, the test is flaky - if keys is called
       # immediately after setItem it sometimes returns an empty list
-      new Promise((resolve, reject) -> setTimeout(resolve, 50))
+      new Promise((resolve, reject) -> setTimeout(resolve, 20))
     .then () ->
-        paymentsPromise = Payments.load('2013-11-13')
-        paymentsPromise.should.eventually.have.length 2
-        paymentsPromise.should.eventually.deep.equal sampleData[1..2]
+        payments = Payments.load('2013-11-13')
+        payments.should.eventually.have.length 2
+        payments.should.eventually.deep.equal sampleData[1..2]
+
+  it 'should return the total number of payments stored', () ->
+    payments = new Payments sampleData
+    payments.store().then (response) ->
+      # without this, the test is flaky - if keys is called immediately
+      # after store it sometimes does not return the full set of keys
+      new Promise((resolve, reject) -> setTimeout(resolve, 20))
+    .then () ->
+      Payments.getCount().should.eventually.equal 4

@@ -14,6 +14,10 @@ convertStoredPayments = (payments) ->
   _.flatten(_.map payments, _.values).map (payment) ->
     new Payment(payment)
 
+countPayments = (payments) ->
+  count = 0
+  _.flatten(_.map payments, _.values).length
+
 class window.Payment
 
   constructor: (options) ->
@@ -45,3 +49,10 @@ class window.Payments
       _.each paymentKeys, (paymentKey) ->
         promises.push localforage.getItem paymentKey
       Promise.all(promises).then (result) -> convertStoredPayments result
+
+  @getCount: () ->
+    localforage.keys().then (keys) ->
+      promises = []
+      _.each keys, (key) ->
+        promises.push localforage.getItem key
+      Promise.all(promises).then (result) -> countPayments result

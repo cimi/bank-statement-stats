@@ -7,11 +7,19 @@ guid = do ->
 formatDate = (date) ->
   moment(date).format('YYYY-MM-DD')
 
+dateBetween = (date, start, end) ->
+  new Date(start) <= new Date(date) <= new Date(end)
+
+convertStoredPayments = (payments) ->
+  _.flatten(_.map payments, _.values).map (payment) ->
+    new Payment(payment)
+
 class window.Payment
 
-  constructor: (@date, @name, @ammount, @balance) ->
-    @seen = new Date();
-    @guid = guid();
+  constructor: (options) ->
+    {@date, @name, @ammount, @balance, @guid, @seen} = options
+    @seen = new Date() if !@seen
+    @guid = guid() if !@guid
 
 class window.Payments
   keyPrefix = "payments/"
@@ -29,11 +37,11 @@ class window.Payments
       promises.push localforage.setItem key, group
     Promise.all(promises)
 
-  @load: (from, to) ->
+  @load: (from, to = from) ->
     localforage.keys().then (keys) ->
-      console.log keys
-      paymentKeys = _.filter keys, (key) -> key.indexOf(keyPrefix) == 0
+      paymentKeys = _.filter keys, (key) ->
+        key.indexOf(keyPrefix) == 0 && dateBetween key.replace(keyPrefix, ''), from, to
       promises = []
       _.each paymentKeys, (paymentKey) ->
         promises.push localforage.getItem paymentKey
-      Promise.all(promises).then (paymentMap) -> _.flatten(_.map paymentMap, _.values)
+      Promise.all(promises).then (result) -> convertStoredPayments result

@@ -53,9 +53,11 @@ describe 'Payments', () ->
       localforage.getItem('payments/2013-11-13').should.eventually.have.length 2
 
   it 'should losslessly load a previously saved list of payments', () ->
-    localforage.setItem('payments/2013-11-13', sampleData[1..2]).then (value) ->
-      # TODO: this test is flaky - if keys is called immediately
-      # after setItem it sometimes returns an empty list
-      paymentsPromise = Payments.load('2013-11-13')
-      paymentsPromise.should.eventually.have.length 2
-      paymentsPromise.should.eventually.deep.equal sampleData[1..2]
+    localforage.setItem('payments/2013-11-13', sampleData[1..2]).then () ->
+      # without this, the test is flaky - if keys is called
+      # immediately after setItem it sometimes returns an empty list
+      new Promise((resolve, reject) -> setTimeout(resolve, 50))
+    .then () ->
+        paymentsPromise = Payments.load('2013-11-13')
+        paymentsPromise.should.eventually.have.length 2
+        paymentsPromise.should.eventually.deep.equal sampleData[1..2]

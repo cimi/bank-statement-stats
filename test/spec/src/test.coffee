@@ -1,11 +1,8 @@
 # global describe, it
 
-
-
 describe 'Payment', () ->
   it 'should get a unique guid at creation time', () ->
     payment = new Payment(new Date(), 'Some payment', 100, 2000)
-    console.log(payment.guid)
     assert payment.guid.length == 36
     assert payment.guid.split('-').length == 5
 
@@ -20,8 +17,11 @@ sampleData = [
 ]
 describe 'Payments', () ->
   it 'should create key for a Payment in the form "payments/<date>"', () ->
-    console.log(Payments.getKey sampleData[0])
     assert Payments.getKey(sampleData[0]) == 'payments/2013-11-19'
+    payment = _.clone sampleData[0]
+    payment.date = new Date()
+    expected = moment(payment.date).format('YYYY-MM-DD')
+    assert Payments.getKey(payment) == 'payments/' + expected
 
   it 'should save a list of payments to localstorage, keyed by date', () ->
     localforage.clear()

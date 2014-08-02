@@ -4,6 +4,9 @@ guid = do ->
   () ->
     s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 
+formatDate = (date) ->
+  moment(date).format('YYYY-MM-DD')
+
 class window.Payment
   constructor: (@date, @name, @ammount, @balance) ->
     @seen = new Date();
@@ -13,7 +16,7 @@ class window.Payments
   constructor: (@paymentList) ->
 
   @getKey: (item) ->
-    'payments/' + item.date
+    'payments/' + formatDate(item.date)
 
   store: ->
     groups = _.groupBy @paymentList, 'date'

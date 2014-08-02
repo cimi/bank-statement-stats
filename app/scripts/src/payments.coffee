@@ -25,3 +25,5 @@ class window.Payments
       key = @constructor.getKey group[0]
       promises.push localforage.setItem key, group
     Promise.all(promises)
+
+  @load: ->

@@ -32,3 +32,8 @@ describe 'Payments', () ->
     payments = new Payments sampleData
     payments.store().then (response) ->
       localforage.getItem('payments/2013-11-13').should.eventually.have.length 2
+
+  it 'should losslessly load a previously saved list of payments', () ->
+    localforage.setItem('payments/2013-11-13', sampleData[1..2]).then () ->
+      payments = Payments.load('2013-11-13')
+      assert _.isEqual(payments, sampleData[1..2])

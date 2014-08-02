@@ -16,6 +16,11 @@ sampleData = [
   new Payment(createDateString(new Date('2013-11-17')), 'Some payment', 100, 0)
 ]
 describe 'Payments', () ->
+
+  beforeEach (done) ->
+    localforage.clear () ->
+      done()
+
   it 'should create key for a Payment in the form "payments/<date>"', () ->
     assert Payments.getKey(sampleData[0]) == 'payments/2013-11-19'
     payment = _.clone sampleData[0]
@@ -24,10 +29,6 @@ describe 'Payments', () ->
     assert Payments.getKey(payment) == 'payments/' + expected
 
   it 'should save a list of payments to localstorage, keyed by date', () ->
-    localforage.clear()
-
     payments = new Payments sampleData
-    promise = payments.store()
-    promise.then (response) ->
-      localforage.getItem 'payments/2013-11-13', (items) ->
-        assert items.length == 2
+    payments.store().then (response) ->
+      localforage.getItem('payments/2013-11-13').should.eventually.have.length 2

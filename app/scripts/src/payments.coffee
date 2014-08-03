@@ -18,6 +18,12 @@ countPayments = (payments) ->
   count = 0
   _.flatten(_.map payments, _.values).length
 
+promisePayments = (keys) ->
+  promises = []
+  _.each keys, (key) ->
+    promises.push localforage.getItem key
+  Promise.all(promises)
+
 class window.Payment
 
   constructor: (options) ->
@@ -43,16 +49,10 @@ class window.Payments
 
   @load: (from, to = from) ->
     localforage.keys().then (keys) ->
-      paymentKeys = _.filter keys, (key) ->
+      filteredKeys = _.filter keys, (key) ->
         key.indexOf(keyPrefix) == 0 && dateBetween key.replace(keyPrefix, ''), from, to
-      promises = []
-      _.each paymentKeys, (paymentKey) ->
-        promises.push localforage.getItem paymentKey
-      Promise.all(promises).then (result) -> convertStoredPayments result
+      promisePayments(filteredKeys).then (result) -> convertStoredPayments result
 
   @getCount: () ->
     localforage.keys().then (keys) ->
-      promises = []
-      _.each keys, (key) ->
-        promises.push localforage.getItem key
-      Promise.all(promises).then (result) -> countPayments result
+      promisePayments(keys).then (result) -> countPayments result

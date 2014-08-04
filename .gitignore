@@ -11,3 +11,4 @@ test/spec/*.js
 app/styles/*.css
 app/scripts/*.js
 !**/README
+!app/scripts/ngapp.js

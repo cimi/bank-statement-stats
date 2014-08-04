@@ -11,7 +11,11 @@
     "background": {
         "scripts": [
             "bower_components/localforage/dist/localforage.js",
+            "bower_components/underscore/underscore.js",
+            "bower_components/jquery/dist/jquery.js",
+            "bower_components/moment/moment.js",
             "scripts/chromereload.js",
+            "scripts/payments.js",
             "scripts/background.js"
         ]
     },
@@ -40,8 +44,9 @@
     }
   ],
   "permissions": [
+    "notifications",
     "tabs",
-      "http://*.hsbc.co.uk/*",
-      "https://*.hsbc.co.uk/*"
+    "http://*.hsbc.co.uk/*",
+    "https://*.hsbc.co.uk/*"
   ]
 }

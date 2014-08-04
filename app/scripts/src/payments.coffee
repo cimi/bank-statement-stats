@@ -45,7 +45,7 @@ class window.Payments
     _.each groups, (group) =>
       key = @constructor.getKey group[0]
       promises.push localforage.setItem key, group
-    Promise.all(promises)
+    Promise.all(promises).then (stored) -> convertStoredPayments stored
 
   @load: (from, to = from) ->
     localforage.keys().then (keys) ->

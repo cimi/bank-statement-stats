@@ -52,6 +52,10 @@ describe 'Payments', () ->
     payments.store().then (response) ->
       localforage.getItem('payments/2013-11-13').should.eventually.have.length 2
 
+  it 'should return the initial list of payments after saving', () ->
+    payments = new Payments sampleData
+    payments.store().should.eventually.have.length 4
+
   it 'should losslessly load a previously saved list of payments', () ->
     localforage.setItem('payments/2013-11-13', sampleData[1..2]).then () ->
       # without this, the test is flaky - if keys is called

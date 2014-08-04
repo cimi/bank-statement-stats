@@ -52,6 +52,4 @@ extractPayments = (table) ->
 # ((( => contactless payment
 
 payments = extractPayments(extractTable()).map(processPayment(2013));
-chrome.runtime.sendMessage payments, (response) ->
-  console.log response
-console.log payments
+chrome.runtime.sendMessage payments

@@ -2,7 +2,6 @@
 
 
 createTableFrom = (data) ->
-  console.log data
   $('#payments').dataTable {
     "data": data,
     "columns": [
@@ -18,7 +17,7 @@ displayTableFromLocalFile = () ->
   $.getJSON(url, (payments) -> createTableFrom payments)
 
 $(document).ready () ->
-  localforage.getItem "payments", (payments) ->
+  Payments.load().then (payments) ->
     if payments == null or payments.length == 0
       displayTableFromLocalFile()
     else

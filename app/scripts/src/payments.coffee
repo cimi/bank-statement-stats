@@ -48,9 +48,13 @@ class window.Payments
     Promise.all(promises).then (stored) -> convertStoredPayments stored
 
   @load: (from, to = from) ->
+    predicate = do (from, to) ->
+      validPrefix = (key) -> key.indexOf(keyPrefix) == 0
+      validDate = (key) -> dateBetween key.replace(keyPrefix, ''), from, to
+      if !from || !to then validDate = (key) -> true
+      (key) -> validPrefix(key) && validDate(key)
     localforage.keys().then (keys) ->
-      filteredKeys = _.filter keys, (key) ->
-        key.indexOf(keyPrefix) == 0 && dateBetween key.replace(keyPrefix, ''), from, to
+      filteredKeys = _.filter keys, (key) -> predicate key
       promisePayments(filteredKeys).then (result) -> convertStoredPayments result
 
   @getCount: () ->

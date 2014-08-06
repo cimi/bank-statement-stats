@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app = "bankStatementsStats" ng-csp>
+<html ng-app="bankStatementsStats" ng-csp>
     <head>
         <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
@@ -7,22 +7,31 @@
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css styles/main.css -->
-        <link href="styles/main.css" rel="stylesheet">
+        <link href="styles/main.css" rel="stylesheet"/>
         <!-- endbuild -->
     </head>
-    <body ng-controller="StatsController as stats ">
-        <div>{{stats.test}}</div>
-        <table id="payments1" ng-repeat="payment in stats.payments">
-            <tr>
-                <td>{{payment.name}}</td>
-                <td>{{payment.ammount}}</td>
-                <td>{{payment.date}}</td>
-                <td>{{payment.balance}}</td>
-                <td>{{payment.category}}</td>
-                <td>{{payment.tags}}</td>
-            </tr>
-        </table>
 
+    <body ng-controller="StatsController as stats">
+    <table id="payments">
+        <thead>
+            <tr>
+                <th ng-repeat="header in stats.headers">{{header}}</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="payment in stats.payments">
+            <td>{{payment.name}}</td>
+            <td>{{payment.ammount}}</td>
+            <td>{{payment.date}}</td>
+            <td>{{payment.balance}}</td>
+            <td contenteditable="true" ng-model="payment.category"></td>
+            <td contenteditable="true" ng-model="payment.tags"></td>
+
+        </tr>
+    </table>
+        
+        <ul ng-repeat="payment in stats.payments">
+        <li>{{payment.tags}}...{{payment.category}}</li>
+        </ul>
         <!-- build:js scripts/vendor.js -->
         <!-- bower:js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>

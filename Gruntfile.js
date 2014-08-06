@@ -63,6 +63,7 @@ module.exports = function (grunt) {
                 },
                 files: [
                     '<%= config.app %>/*.html',
+                    '<%= config.app %>/scripts/ngapp.js',
                     '<%= config.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
                     '<%= config.app %>/manifest.json',
                     '<%= config.app %>/_locales/{,*/}*.json'

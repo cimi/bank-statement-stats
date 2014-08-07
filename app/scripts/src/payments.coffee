@@ -31,6 +31,12 @@ class window.Payment
     @seen = new Date() if !@seen
     @guid = guid() if !@guid
 
+  isEquivalent: (payment) ->
+    equivalent = true
+    ['name', 'ammount', 'balance', 'date'].forEach (attribute) =>
+      equivalent = false if @[attribute] != payment[attribute]
+    equivalent
+
 class window.Payments
   keyPrefix = "payments/"
 

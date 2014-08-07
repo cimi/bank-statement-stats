@@ -1,11 +1,4 @@
 # global describe, it
-
-describe 'Payment', () ->
-  it 'should get a unique guid at creation time', () ->
-    payment = new Payment(new Date(), 'Some payment', 100, 2000)
-    assert payment.guid.length == 36
-    assert payment.guid.split('-').length == 5
-
 createDateString = (date) ->
   moment(date).format('YYYY-MM-DD');
 
@@ -35,6 +28,17 @@ sampleData = [
     balance: 0
   })
 ]
+
+describe 'Payment', () ->
+  it 'should get a unique guid at creation time', () ->
+    payment = new Payment(new Date(), 'Some payment', 100, 2000)
+    assert payment.guid.length == 36
+    assert payment.guid.split('-').length == 5
+
+  it 'should return equivalent if a payment has the same details', () ->
+    assert sampleData[1].isEquivalent(sampleData[2])
+    assert !sampleData[1].isEquivalent(sampleData[3])
+
 describe 'Payments', () ->
 
   beforeEach (done) ->

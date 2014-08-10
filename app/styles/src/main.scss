@@ -25,7 +25,7 @@ table {
 	border-radius: $table-border-radius;
 	border: $table-outer-border;
 	empty-cells: show;
-
+	border-collapse: collapse;
 	tr {
 		border: $table-cell-border;
 		&:nth-child(odd){
@@ -37,12 +37,16 @@ table {
 
 	}
 	td {
-		border: $table-cell-border;		
-		
+		border: $table-cell-border;	
+		border-collapse: collapse;	
 	}
 	td,th{
 		text-align: center;
 		padding: 1em;
 		margin: .5em 1em;
+	}
+	[contenteditable]:hover{
+		border: $table-outer-border;
+
 	}
 }

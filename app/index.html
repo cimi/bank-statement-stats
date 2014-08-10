@@ -15,21 +15,21 @@
     <table id="payments">
         <thead>
             <tr>
-                <th ng-repeat="header in stats.headers">{{header}}</th>
+                <th ng-repeat="header in headers">{{header}}</th>
             </tr>
         </thead>
-        <tr ng-repeat="payment in stats.payments">
+        <tr data-ng-repeat="payment in payments">
             <td>{{payment.name}}</td>
             <td>{{payment.ammount}}</td>
             <td>{{payment.date}}</td>
             <td>{{payment.balance}}</td>
-            <td contenteditable="true" ng-model="payment.category"></td>
-            <td contenteditable="true" ng-model="payment.tags"></td>
-
+            <td><input ng-model="payment.category"></td>
+            <td><input ng-model="payment.tags"></td>
+          
         </tr>
     </table>
         
-        <ul ng-repeat="payment in stats.payments">
+        <ul ng-repeat="payment in payments">
         <li>{{payment.tags}}...{{payment.category}}</li>
         </ul>
         <!-- build:js scripts/vendor.js -->
@@ -46,8 +46,8 @@
 
         <!-- build:js scripts/main.js -->
         <script src="scripts/payments.js"></script>
-        <script src="scripts/main.js"></script>
         <script src="scripts/ngapp.js"></script>
+        
         <!-- endbuild -->
     </body>
 </html>

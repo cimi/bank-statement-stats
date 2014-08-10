@@ -143,12 +143,13 @@ describe 'Payments', () ->
 
   describe 'Payments.load(from, to)', () ->
     beforeEach (done) ->
+      promises = []
       @data.forEach (payment) ->
-        localforage.setItem(payment.getKey(), payment).then () ->
+        promises.push localforage.setItem(payment.getKey(), payment).then () ->
           # without this, the test is flaky - if keys is called
           # immediately after setItem it sometimes returns an empty list
           new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
-        .then () -> done()
+        Promise.all(promises).then () -> done()
 
     it 'should return a payments object', () ->
       Payments.load().should.eventually.be.an.instanceof Payments

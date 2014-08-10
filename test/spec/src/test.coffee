@@ -128,6 +128,19 @@ describe 'Payments', () ->
             payments.paymentList.should.have.length 3
             payments.paymentList.should.contain.a.thing.with.property 'guid', extra.guid
 
+    it 'should return Payments wrapping all saved Payment objects', () ->
+      payments1 = new Payments @data
+      extra = new Payment @data[1]
+      extra.guid = new Payment({}).guid
+      @data.push extra
+      payments2 = new Payments @data
+      payments1.storeAll().then () ->
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
+      .then () ->
+        payments2.storeDiff().then (stored) ->
+          stored.should.be.an.instanceof Payments
+          stored.paymentList.should.have.length 2
+
   describe 'Payments.load(from, to)', () ->
     beforeEach (done) ->
       @data.forEach (payment) ->
@@ -176,3 +189,10 @@ describe 'Payments', () ->
     it 'should return the first list if the second is empty', () ->
       payments = new Payments @data
       Payments.difference(payments, new Payments []).should.deep.equal payments
+
+  describe 'Payments.flatten(list)', () ->
+    it 'should return a Payments object containing all Payment in the list of Payments provided', () ->
+      payments1 = new Payments @data
+      @data.push @data[1]
+      payments2 = new Payments @data
+      Payments.flatten([payments1, payments2]).paymentList.should.have.length 9

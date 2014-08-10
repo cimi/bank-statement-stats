@@ -65,13 +65,12 @@ class window.Payments
   storeDiff: ->
     groups = _.groupBy @paymentList, 'date'
     promises = []
-    _.each groups, (group) =>
+    _.each groups, (group, date) =>
       current = new Payments group
-      promise = @constructor.load group[0].date
+      promise = @constructor.load date
       promises.push promise.then (previous) =>
-        diff = @constructor.difference current, previous
-        diff.storeAll()
-    Promise.all(promises).then (stored) -> _.flatten stored
+        @constructor.difference(current, previous).storeAll()
+    Promise.all(promises).then (stored) => @constructor.flatten(stored)
 
   @difference: (payments1, payments2) ->
     group = (payments) ->
@@ -100,3 +99,8 @@ class window.Payments
     localforage.keys().then (keys) ->
       keys = _.filter keys, (key) -> key.indexOf(keyPrefix) == 0
       promisePayments(keys).then (result) -> result.paymentList.length
+
+  @flatten: (list) ->
+    result = []
+    list.forEach (payments) -> result = result.concat(payments.paymentList)
+    new Payments result

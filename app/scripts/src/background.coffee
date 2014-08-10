@@ -9,8 +9,8 @@ chrome.tabs.onUpdated.addListener (tabId) ->
 chrome.runtime.onMessage.addListener (request, sender) ->
   payments = new Payments request.map (payment) -> new Payment payment
   savedPayments = 0;
-  payments.store().then (results) ->
-    savedPayments = results.length
+  payments.storeDiff().then (payments) ->
+    savedPayments = payments.paymentList.length
     Payments.getCount()
   .then (count) ->
     options = {

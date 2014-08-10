@@ -18,7 +18,7 @@ displayTableFromLocalFile = () ->
 
 $(document).ready () ->
   Payments.load().then (payments) ->
-    if payments == null or payments.length == 0
+    if payments == null or payments.paymentList.length == 0
       displayTableFromLocalFile()
     else
-      createTableFrom payments
+      createTableFrom payments.paymentList

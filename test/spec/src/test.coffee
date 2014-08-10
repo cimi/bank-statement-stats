@@ -29,37 +29,50 @@ sampleData = [
     balance: 0
   })
 ]
-
+data = []
 describe 'Payment', () ->
-  it 'should get a unique guid at creation time', () ->
-    payment = new Payment(new Date(), 'Some payment', 100, 2000)
-    assert payment.guid.length == 36
-    assert payment.guid.split('-').length == 5
+  beforeEach (done) ->
+    data = _.clone sampleData
+    localforage.clear().then () -> done()
 
-  it 'should return equivalent if a payment has the same details', () ->
-    assert sampleData[1].isEquivalent(sampleData[2])
-    assert !sampleData[1].isEquivalent(sampleData[3])
+  describe 'constructor(options)', () ->
+    it 'should get a unique guid at creation time if not passed in', () ->
+      payment = new Payment({})
+      payment.guid.length.should.equal 36
+      payment.guid.split('-').should.have.length 5
 
-  it 'should hash payment details consistently', () ->
-    assert sampleData[1].hashDetails() == sampleData[2].hashDetails()
-    assert sampleData[1].hashDetails() != sampleData[3].hashDetails()
+    it 'should keep properties received at creation time', () ->
+      payment = new Payment(data[0])
+      payment.should.deep.equal data[0]
 
-  it 'should generate key string "payments/<date>/<guid>"', () ->
-    payment = sampleData[0]
-    payment.date = new Date()
-    expected = moment(payment.date).format('YYYY-MM-DD')
-    assert payment.getKey() == 'payments/' + expected + '/' + payment.guid
+  describe 'isEquivalent(other)', () ->
+    it 'should return equivalent if a payment has the same details', () ->
+      sampleData[1].isEquivalent(sampleData[2]).should.be.true
+      sampleData[1].isEquivalent(sampleData[3]).should.be.false
+
+  describe 'hashDetails()', () ->
+    it 'should generate a consistent hash out of date, ammount, name and balance', () ->
+      sampleData[1].hashDetails().should.equal sampleData[2].hashDetails()
+      sampleData[1].hashDetails().should.not.equal sampleData[3].hashDetails()
+
+  describe 'getKey()', () ->
+    it 'should generate key string "payments/<date>/<guid>"', () ->
+      payment = sampleData[0]
+      payment.date = new Date()
+      expected = moment(payment.date).format('YYYY-MM-DD')
+      payment.getKey().should.equal 'payments/' + expected + '/' + payment.guid
 
   describe 'store()', () ->
-    it 'should save the Payment under payment.getKey() and return the Payment', () ->
-      payment = sampleData[0]
-      stored = payment.store()
-      stored.should.eventually.deep.equal payment
-      stored.then () ->
+    it 'should save the Payment under payment.getKey()', () ->
+      data[0].store().then () ->
         new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
       .then () ->
-        localforage.getItem(payment.getKey()).then (obj) -> new Payment(obj)
-        .should.eventually.deep.equal payment
+        localforage.getItem(data[0].getKey()).then (obj) -> new Payment(obj)
+        .should.eventually.deep.equal data[0]
+
+    it 'should return the Payment', () ->
+      payment = sampleData[0]
+      payment.store().should.eventually.deep.equal payment
 
 describe 'Payments', () ->
 
@@ -72,28 +85,6 @@ describe 'Payments', () ->
       payments = new Payments @data
       @data.push @data[0]
       payments.paymentList.should.have.length 4
-
-  describe 'Payments.difference(first, second)', () ->
-    it 'should return a Payments object containing what is in first but not in second', () ->
-      payments1 = new Payments @data
-      @data.push @data[0]
-      @data.push @data[1]
-      payments2 = new Payments @data
-      result = Payments.difference(payments2, payments1)
-      result.paymentList.should.have.length 2
-      result.paymentList.should.include.something.that.deep.equals @data[0]
-      result.paymentList.should.include.something.that.deep.equals @data[1]
-
-    it 'should return an empty list if all in first are also in second', () ->
-      payments1 = new Payments @data
-      @data.push @data[1]
-      payments2 = new Payments @data
-      result = Payments.difference(payments1, payments2)
-      result.paymentList.should.have.length 0
-
-    it 'should return the first list if the second is empty', () ->
-      payments = new Payments @data
-      Payments.difference(payments, new Payments []).should.deep.equal payments
 
   describe 'isEquivalent(other)', () ->
     it 'should return true if individual payments are equivalent', () ->
@@ -137,7 +128,7 @@ describe 'Payments', () ->
             payments.paymentList.should.have.length 3
             payments.paymentList.should.contain.a.thing.with.property 'guid', extra.guid
 
-  describe 'load(from, to)', () ->
+  describe 'Payments.load(from, to)', () ->
     beforeEach (done) ->
       @data.forEach (payment) ->
         localforage.setItem(payment.getKey(), payment).then () ->
@@ -154,7 +145,7 @@ describe 'Payments', () ->
         payments.paymentList.should.have.length 2
         payments.isEquivalent(new Payments @data[1..2]).should.be.true
 
-  describe 'getCount', () ->
+  describe 'Payments.getCount', () ->
     it 'should return the total number of payments stored', () ->
       payments = new Payments @data
       payments.storeAll().then (response) ->
@@ -163,3 +154,25 @@ describe 'Payments', () ->
         new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
       .then () ->
         Payments.getCount().should.eventually.equal 4
+
+  describe 'Payments.difference(first, second)', () ->
+    it 'should return a Payments object containing what is in first but not in second', () ->
+      payments1 = new Payments @data
+      @data.push @data[0]
+      @data.push @data[1]
+      payments2 = new Payments @data
+      result = Payments.difference(payments2, payments1)
+      result.paymentList.should.have.length 2
+      result.paymentList.should.include.something.that.deep.equals @data[0]
+      result.paymentList.should.include.something.that.deep.equals @data[1]
+
+    it 'should return an empty list if all in first are also in second', () ->
+      payments1 = new Payments @data
+      @data.push @data[1]
+      payments2 = new Payments @data
+      result = Payments.difference(payments1, payments2)
+      result.paymentList.should.have.length 0
+
+    it 'should return the first list if the second is empty', () ->
+      payments = new Payments @data
+      Payments.difference(payments, new Payments []).should.deep.equal payments

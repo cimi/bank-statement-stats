@@ -1,3 +1,4 @@
 'use strict';
 
-console.log('\'Allo \'Allo! Option')
+localforage.clear().then () ->
+  $('h1').text('Deleted everything')

@@ -3,8 +3,8 @@
 console.log('\'Allo \'Allo! Popup')
 
 $(document).ready ->
-  console.log $('a')
-  console.log $('#viewer')
   $('#viewer').click ->
     chrome.tabs.create({url: "index.html"});
+  $('#clear').click ->
+    chrome.tabs.create({url: "options.html"});
   true

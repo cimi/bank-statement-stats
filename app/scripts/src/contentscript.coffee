@@ -39,17 +39,25 @@ extractPayments = (table) ->
   rows.each (idx, row) ->
     paragraphs = $(row).find('td p')
     payment = []
-    paragraphs.each (idx, paragraph) ->
-      payment.push($(paragraph).text().trim())
+    if paragraphs.length
+      paragraphs.each (idx, paragraph) -> payment.push($(paragraph).text().trim())
+    else
+      $(row).find('td').each (idx, cell) -> payment.push($(cell).text().trim())
     allPayments.push(payment);
 
   allPayments;
+
+getYear = () ->
+  $elem = $('.hsbcTextLeft strong:contains("Statement date:")')
+  if $elem.length > 0
+    moment(new Date($elem.parent().siblings('.hsbcTextRight').text())).get('year')
+  else
+    moment(new Date()).get('year')
 
 # TODO: payment type in human readable form
 # TFR => transfer
 # VIS => card payment
 # CR => credit (incoming payment)
 # ((( => contactless payment
-
-payments = extractPayments(extractTable()).map(processPayment(2013));
+payments = extractPayments(extractTable()).map(processPayment(getYear()));
 chrome.runtime.sendMessage payments

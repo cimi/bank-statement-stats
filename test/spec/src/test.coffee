@@ -1,4 +1,5 @@
 # global describe, it
+TIMEOUT = 5 # milliseconds
 createDateString = (date) ->
   moment(date).format('YYYY-MM-DD');
 
@@ -39,42 +40,126 @@ describe 'Payment', () ->
     assert sampleData[1].isEquivalent(sampleData[2])
     assert !sampleData[1].isEquivalent(sampleData[3])
 
+  it 'should hash payment details consistently', () ->
+    assert sampleData[1].hashDetails() == sampleData[2].hashDetails()
+    assert sampleData[1].hashDetails() != sampleData[3].hashDetails()
+
+  it 'should generate key string "payments/<date>/<guid>"', () ->
+    payment = sampleData[0]
+    payment.date = new Date()
+    expected = moment(payment.date).format('YYYY-MM-DD')
+    assert payment.getKey() == 'payments/' + expected + '/' + payment.guid
+
+  describe 'store()', () ->
+    it 'should save the Payment under payment.getKey() and return the Payment', () ->
+      payment = sampleData[0]
+      stored = payment.store()
+      stored.should.eventually.deep.equal payment
+      stored.then () ->
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
+      .then () ->
+        localforage.getItem(payment.getKey()).then (obj) -> new Payment(obj)
+        .should.eventually.deep.equal payment
+
 describe 'Payments', () ->
 
   beforeEach (done) ->
     localforage.clear().then () -> done()
+    @data = _.clone sampleData
 
-  it 'should create key for a Payment in the form "payments/<date>"', () ->
-    assert Payments.getKey(sampleData[0]) == 'payments/2013-11-19'
-    payment = _.clone sampleData[0]
-    payment.date = new Date()
-    expected = moment(payment.date).format('YYYY-MM-DD')
-    assert Payments.getKey(payment) == 'payments/' + expected
+  describe 'constructor(@paymentList)', () ->
+    it 'should create a defensive copy of the list received', () ->
+      payments = new Payments @data
+      @data.push @data[0]
+      payments.paymentList.should.have.length 4
 
-  it 'should save a list of payments to localstorage, keyed by date', () ->
-    payments = new Payments sampleData
-    payments.store().then (response) ->
-      localforage.getItem('payments/2013-11-13').should.eventually.have.length 2
+  describe 'Payments.difference(first, second)', () ->
+    it 'should return a Payments object containing what is in first but not in second', () ->
+      payments1 = new Payments @data
+      @data.push @data[0]
+      @data.push @data[1]
+      payments2 = new Payments @data
+      result = Payments.difference(payments2, payments1)
+      result.paymentList.should.have.length 2
+      result.paymentList.should.include.something.that.deep.equals @data[0]
+      result.paymentList.should.include.something.that.deep.equals @data[1]
 
-  it 'should return the initial list of payments after saving', () ->
-    payments = new Payments sampleData
-    payments.store().should.eventually.have.length 4
+    it 'should return an empty list if all in first are also in second', () ->
+      payments1 = new Payments @data
+      @data.push @data[1]
+      payments2 = new Payments @data
+      result = Payments.difference(payments1, payments2)
+      result.paymentList.should.have.length 0
 
-  it 'should losslessly load a previously saved list of payments', () ->
-    localforage.setItem('payments/2013-11-13', sampleData[1..2]).then () ->
-      # without this, the test is flaky - if keys is called
-      # immediately after setItem it sometimes returns an empty list
-      new Promise((resolve, reject) -> setTimeout(resolve, 20))
-    .then () ->
-        payments = Payments.load('2013-11-13')
-        payments.should.eventually.have.length 2
-        payments.should.eventually.deep.equal sampleData[1..2]
+    it 'should return the first list if the second is empty', () ->
+      payments = new Payments @data
+      Payments.difference(payments, new Payments []).should.deep.equal payments
 
-  it 'should return the total number of payments stored', () ->
-    payments = new Payments sampleData
-    payments.store().then (response) ->
-      # without this, the test is flaky - if keys is called immediately
-      # after store it sometimes does not return the full set of keys
-      new Promise((resolve, reject) -> setTimeout(resolve, 20))
-    .then () ->
-      Payments.getCount().should.eventually.equal 4
+  describe 'isEquivalent(other)', () ->
+    it 'should return true if individual payments are equivalent', () ->
+      payments1 = new Payments @data
+      payments2 = new Payments _.clone @data
+      payments1.isEquivalent(payments2).should.be.true
+
+    it 'should return false if the other collection has different payments', () ->
+      payments1 = new Payments @data
+      @data.push @data[0]
+      payments2 = new Payments @data
+      payments1.isEquivalent(payments2).should.be.false
+
+  describe 'storeAll()', () ->
+    it 'should return a Payments object after saving', () ->
+      payments = new Payments sampleData
+      payments = payments.storeAll()
+      payments.should.eventually.be.an.instanceof Payments
+
+    it 'should save a list of payments to localstorage, regardless of what other values are present', () ->
+      payments = new Payments @data
+      payments.storeAll().then (payments) ->
+        payments.paymentList.forEach (payment) ->
+          localforage.getItem(payment.getKey()).then (stored) -> new Payment(stored)
+          .should.eventually.deep.equal payment
+
+  describe 'storeDiff()', () ->
+    it 'should append the difference of the two lists to storage', () ->
+      payments1 = new Payments @data
+      extra = new Payment @data[1]
+      extra.guid = new Payment({}).guid
+      @data.push extra
+      payments2 = new Payments @data
+      payments1.storeAll().then () ->
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
+      .then () ->
+        payments2.storeDiff().then () ->
+          new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
+        .then () ->
+          payments = Payments.load('2013-11-13').then (payments) ->
+            payments.paymentList.should.have.length 3
+            payments.paymentList.should.contain.a.thing.with.property 'guid', extra.guid
+
+  describe 'load(from, to)', () ->
+    beforeEach (done) ->
+      @data.forEach (payment) ->
+        localforage.setItem(payment.getKey(), payment).then () ->
+          # without this, the test is flaky - if keys is called
+          # immediately after setItem it sometimes returns an empty list
+          new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
+        .then () -> done()
+
+    it 'should return a payments object', () ->
+      Payments.load().should.eventually.be.an.instanceof Payments
+
+    it 'should losslessly load a previously saved list of payments for a particular date', () ->
+      Payments.load('2013-11-13').then (payments) =>
+        payments.paymentList.should.have.length 2
+        payments.isEquivalent(new Payments @data[1..2]).should.be.true
+
+  describe 'getCount', () ->
+    it 'should return the total number of payments stored', () ->
+      payments = new Payments @data
+      payments.storeAll().then (response) ->
+        # without this, the test is flaky - if keys is called immediately
+        # after store it sometimes does not return the full set of keys
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
+      .then () ->
+        Payments.getCount().should.eventually.equal 4

@@ -4,7 +4,8 @@
   "dependencies": {
     "chai": "~1.8.0",
     "mocha": "~1.21.3",
-    "chai-as-promised": "~4.1.1"
+    "chai-as-promised": "~4.1.1",
+    "Chai-Things": "adaptivelab/Chai-Things#~0.2.0"
   },
   "devDependencies": {}
 }

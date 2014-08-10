@@ -10,22 +10,9 @@ formatDate = (date) ->
 dateBetween = (date, start, end) ->
   new Date(start) <= new Date(date) <= new Date(end)
 
-convertStoredPayments = (payments) ->
-  _.flatten(_.map payments, _.values).map (payment) ->
-    new Payment(payment)
-
-countPayments = (payments) ->
-  count = 0
-  _.flatten(_.map payments, _.values).length
-
-promisePayments = (keys) ->
-  promises = []
-  _.each keys, (key) ->
-    promises.push localforage.getItem key
-  Promise.all(promises)
+keyPrefix = 'payments/'
 
 class window.Payment
-
   constructor: (options) ->
     {@date, @name, @ammount, @balance, @guid, @seen} = options
     @seen = new Date() if !@seen
@@ -37,32 +24,79 @@ class window.Payment
       equivalent = false if @[attribute] != payment[attribute]
     equivalent
 
+  hashDetails: () ->
+    details = ''
+    ['name', 'ammount', 'balance', 'date'].forEach (detail) =>
+      details += @[detail]
+    sha1(details)
+
+  getKey: () ->
+    keyPrefix + formatDate(@date) + '/' + @guid
+
+  store: () ->
+    localforage.setItem(@getKey(), @).then (obj) -> new Payment obj
+
+
 class window.Payments
-  keyPrefix = "payments/"
 
-  constructor: (@paymentList) ->
+  promisePayments = (keys) ->
+    promises = []
+    _.each keys, (key) ->
+      promises.push localforage.getItem(key).then (obj) -> new Payment obj
+    Promise.all(promises).then (list) -> new Payments list
 
-  @getKey: (item) ->
-    keyPrefix + formatDate(item.date)
+  constructor: (paymentList) -> @paymentList = _.clone(paymentList)
 
-  store: ->
+  isEquivalent: (other) ->
+    equivalent = true
+    ours = _.sortBy @paymentList, 'guid'
+    theirs = _.sortBy other.paymentList, 'guid'
+    return false if ours.length != theirs.length
+    ours.forEach (val, idx) ->
+      equivalent = false if not ours[idx].isEquivalent(theirs[idx])
+    equivalent
+
+  storeAll: ->
+    promises = []
+    @paymentList.forEach (payment) ->
+      promises.push payment.store()
+    Promise.all(promises).then (paymentList) -> new Payments paymentList
+
+  storeDiff: ->
     groups = _.groupBy @paymentList, 'date'
     promises = []
     _.each groups, (group) =>
-      key = @constructor.getKey group[0]
-      promises.push localforage.setItem key, group
-    Promise.all(promises).then (stored) -> convertStoredPayments stored
+      current = new Payments group
+      promise = @constructor.load group[0].date
+      promises.push promise.then (previous) =>
+        diff = @constructor.difference current, previous
+        diff.storeAll()
+    Promise.all(promises).then (stored) -> _.flatten stored
+
+  @difference: (payments1, payments2) ->
+    group = (payments) ->
+      _.groupBy payments.paymentList, (payment) -> payment.hashDetails()
+    payments1 = group(payments1)
+    payments2 = group(payments2)
+    _.each payments1, (payments, hash) ->
+      if payments2[hash]
+        payments1[hash] = _.rest payments1[hash], payments2[hash].length
+    result = []
+    _.each payments1, (payments) ->
+      result.push payments
+    new Payments _.flatten result
 
   @load: (from, to = from) ->
     predicate = do (from, to) ->
       validPrefix = (key) -> key.indexOf(keyPrefix) == 0
-      validDate = (key) -> dateBetween key.replace(keyPrefix, ''), from, to
+      validDate = (key) -> dateBetween key.split('/')[1], from, to
       if !from || !to then validDate = (key) -> true
       (key) -> validPrefix(key) && validDate(key)
     localforage.keys().then (keys) ->
       filteredKeys = _.filter keys, (key) -> predicate key
-      promisePayments(filteredKeys).then (result) -> convertStoredPayments result
+      promisePayments(filteredKeys)
 
   @getCount: () ->
     localforage.keys().then (keys) ->
-      promisePayments(keys).then (result) -> countPayments result
+      keys = _.filter keys, (key) -> key.indexOf(keyPrefix) == 0
+      promisePayments(keys).then (result) -> result.paymentList.length

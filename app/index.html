@@ -18,7 +18,7 @@
                 <th ng-repeat="header in headers">{{header}}</th>
             </tr>
         </thead>
-        <tr data-ng-repeat="payment in payments">
+        <tr data-ng-repeat="payment in paymentsList">
             <td>{{payment.name}}</td>
             <td>{{payment.ammount}}</td>
             <td>{{payment.date}}</td>
@@ -28,10 +28,8 @@
           
         </tr>
     </table>
-        
-        <ul ng-repeat="payment in payments">
-        <li>{{payment.tags}}...{{payment.category}}</li>
-        </ul>
+    <button ng-click="stats.saveInfo()">Save changes</button>
+
         <!-- build:js scripts/vendor.js -->
         <!-- bower:js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>

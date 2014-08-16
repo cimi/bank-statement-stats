@@ -14,9 +14,11 @@ keyPrefix = 'payments/'
 
 class window.Payment
   constructor: (options) ->
-    {@date, @name, @ammount, @balance, @guid, @seen} = options
+    {@date, @name, @ammount, @balance, @guid, @seen, @category, @tags} = options
     @seen = new Date() if !@seen
     @guid = guid() if !@guid
+    @category = '' if !@category
+    @tags = '' if !@tags
 
   isEquivalent: (payment) ->
     equivalent = true

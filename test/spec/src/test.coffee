@@ -1,5 +1,5 @@
 # global describe, it
-TIMEOUT = 5 # milliseconds
+TIMEOUT = 100 # milliseconds
 createDateString = (date) ->
   moment(date).format('YYYY-MM-DD');
 

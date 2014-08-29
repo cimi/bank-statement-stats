@@ -1,4 +1,52 @@
 $padding: 20px;
+$font: Arial, sans-serif;
+
+
+$table-background-color: #FFF;
+$table-text-color: #024457;
+$table-outer-border: 1px solid #167F92;
+$table-cell-border: 1px solid #D9E4E6;
+$table-border-radius: 10px;
+$table-highlight-color: #EAF3F3;
+$table-header-background-color: #7da2aa;
+$table-header-text-color: #FFF;
+$table-header-border: 1px solid #FFF;
+
 body {
     padding: $padding;
+    font-family: $font;
+}
+
+table {
+	margin: 5em 0;
+	width: 100%;
+	background: $table-background-color;
+	color: $table-text-color;
+	border-radius: $table-border-radius;
+	border: $table-outer-border;
+	empty-cells: show;
+	border-collapse: collapse;
+	tr {
+		border: $table-cell-border;
+		&:nth-child(odd){
+			background-color: $table-highlight-color;
+		}
+	}
+	th {
+		color: $table-header-background-color;
+
+	}
+	td {
+		border: $table-cell-border;	
+		border-collapse: collapse;	
+	}
+	td,th{
+		text-align: center;
+		padding: 1em;
+		margin: .5em 1em;
+	}
+	[contenteditable]:hover{
+		border: $table-outer-border;
+
+	}
 }

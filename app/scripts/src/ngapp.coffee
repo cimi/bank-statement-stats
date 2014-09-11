@@ -1,4 +1,4 @@
-app = angular.module 'bankStatementsStats', []
+app = angular.module 'bankStatementsStats', ["xeditable"]
 app.factory 'PaymentsRetrieve', ['$window', ($window) -> $window.Payments]
 
 app.controller 'StatsController', ['$scope', 'PaymentsRetrieve', ($scope, PaymentsRetrieve) ->

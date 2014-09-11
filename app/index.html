@@ -23,8 +23,8 @@
         <td>{{payment.ammount}}</td>
         <td>{{payment.date}}</td>
         <td>{{payment.balance}}</td>
-        <td><input ng-model="payment.category"></td>
-        <td><input ng-model="payment.tags"></td>
+        <td><a href="#" editable-text="payment.category">{{ payment.category || "empty" }}</a></td>
+        <td><a href="#" editable-text="payment.tags">{{ payment.tags || "empty" }}</a></td>
       </tr>
     </table>
     <button ng-click="stats.saveInfo()">Save changes</button>

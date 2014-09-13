@@ -18,7 +18,7 @@ class window.Payment
     @seen = new Date() if !@seen
     @guid = guid() if !@guid
     @category = '' if !@category
-    @tags = '' if !@tags
+    @tags = [] if !@tags
 
   isEquivalent: (payment) ->
     equivalent = true
@@ -48,6 +48,8 @@ class window.Payments
     Promise.all(promises).then (list) -> new Payments list
 
   constructor: (list) -> @list = _.clone(list)
+
+  clone: () -> new Payments @list
 
   isEquivalent: (other) ->
     equivalent = true

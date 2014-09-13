@@ -80,11 +80,11 @@ describe 'Payments', () ->
     localforage.clear().then () -> done()
     @data = _.clone sampleData
 
-  describe 'constructor(@paymentList)', () ->
+  describe 'constructor(@list)', () ->
     it 'should create a defensive copy of the list received', () ->
       payments = new Payments @data
       @data.push @data[0]
-      payments.paymentList.should.have.length 4
+      payments.list.should.have.length 4
 
   describe 'isEquivalent(other)', () ->
     it 'should return true if individual payments are equivalent', () ->
@@ -107,7 +107,7 @@ describe 'Payments', () ->
     it 'should save a list of payments to localstorage, regardless of what other values are present', () ->
       payments = new Payments @data
       payments.storeAll().then (payments) ->
-        payments.paymentList.forEach (payment) ->
+        payments.list.forEach (payment) ->
           localforage.getItem(payment.getKey()).then (stored) -> new Payment(stored)
           .should.eventually.deep.equal payment
 
@@ -125,8 +125,8 @@ describe 'Payments', () ->
           new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
         .then () ->
           payments = Payments.load('2013-11-13').then (payments) ->
-            payments.paymentList.should.have.length 3
-            payments.paymentList.should.contain.a.thing.with.property 'guid', extra.guid
+            payments.list.should.have.length 3
+            payments.list.should.contain.a.thing.with.property 'guid', extra.guid
 
     it 'should return Payments wrapping all saved Payment objects', () ->
       payments1 = new Payments @data
@@ -139,7 +139,7 @@ describe 'Payments', () ->
       .then () ->
         payments2.storeDiff().then (stored) ->
           stored.should.be.an.instanceof Payments
-          stored.paymentList.should.have.length 2
+          stored.list.should.have.length 2
 
   describe 'Payments.load(from, to)', () ->
     beforeEach (done) ->
@@ -156,7 +156,7 @@ describe 'Payments', () ->
 
     it 'should losslessly load a previously saved list of payments for a particular date', () ->
       Payments.load('2013-11-13').then (payments) =>
-        payments.paymentList.should.have.length 2
+        payments.list.should.have.length 2
         payments.isEquivalent(new Payments @data[1..2]).should.be.true
 
   describe 'Payments.getCount', () ->
@@ -176,16 +176,16 @@ describe 'Payments', () ->
       @data.push @data[1]
       payments2 = new Payments @data
       result = Payments.difference(payments2, payments1)
-      result.paymentList.should.have.length 2
-      result.paymentList.should.include.something.that.deep.equals @data[0]
-      result.paymentList.should.include.something.that.deep.equals @data[1]
+      result.list.should.have.length 2
+      result.list.should.include.something.that.deep.equals @data[0]
+      result.list.should.include.something.that.deep.equals @data[1]
 
     it 'should return an empty list if all in first are also in second', () ->
       payments1 = new Payments @data
       @data.push @data[1]
       payments2 = new Payments @data
       result = Payments.difference(payments1, payments2)
-      result.paymentList.should.have.length 0
+      result.list.should.have.length 0
 
     it 'should return the first list if the second is empty', () ->
       payments = new Payments @data
@@ -196,4 +196,4 @@ describe 'Payments', () ->
       payments1 = new Payments @data
       @data.push @data[1]
       payments2 = new Payments @data
-      Payments.flatten([payments1, payments2]).paymentList.should.have.length 9
+      Payments.flatten([payments1, payments2]).list.should.have.length 9

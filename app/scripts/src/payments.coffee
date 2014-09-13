@@ -47,12 +47,12 @@ class window.Payments
       promises.push localforage.getItem(key).then (obj) -> new Payment obj
     Promise.all(promises).then (list) -> new Payments list
 
-  constructor: (paymentList) -> @paymentList = _.clone(paymentList)
+  constructor: (list) -> @list = _.clone(list)
 
   isEquivalent: (other) ->
     equivalent = true
-    ours = _.sortBy @paymentList, 'guid'
-    theirs = _.sortBy other.paymentList, 'guid'
+    ours = _.sortBy @list, 'guid'
+    theirs = _.sortBy other.list, 'guid'
     return false if ours.length != theirs.length
     ours.forEach (val, idx) ->
       equivalent = false if not ours[idx].isEquivalent(theirs[idx])
@@ -60,12 +60,12 @@ class window.Payments
 
   storeAll: ->
     promises = []
-    @paymentList.forEach (payment) ->
+    @list.forEach (payment) ->
       promises.push payment.store()
-    Promise.all(promises).then (paymentList) -> new Payments paymentList
+    Promise.all(promises).then (list) -> new Payments list
 
   storeDiff: ->
-    groups = _.groupBy @paymentList, 'date'
+    groups = _.groupBy @list, 'date'
     promises = []
     _.each groups, (group, date) =>
       current = new Payments group
@@ -76,7 +76,7 @@ class window.Payments
 
   @difference: (payments1, payments2) ->
     group = (payments) ->
-      _.groupBy payments.paymentList, (payment) -> payment.hashDetails()
+      _.groupBy payments.list, (payment) -> payment.hashDetails()
     payments1 = group(payments1)
     payments2 = group(payments2)
     _.each payments1, (payments, hash) ->
@@ -100,9 +100,9 @@ class window.Payments
   @getCount: () ->
     localforage.keys().then (keys) ->
       keys = _.filter keys, (key) -> key.indexOf(keyPrefix) == 0
-      promisePayments(keys).then (result) -> result.paymentList.length
+      promisePayments(keys).then (result) -> result.list.length
 
   @flatten: (list) ->
     result = []
-    list.forEach (payments) -> result = result.concat(payments.paymentList)
+    list.forEach (payments) -> result = result.concat(payments.list)
     new Payments result

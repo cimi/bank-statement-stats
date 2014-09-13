@@ -6,7 +6,7 @@ app.controller 'StatsController', ['$scope', 'PaymentsRetrieve', ($scope, Paymen
 
   Payments.load().then (newPayments) ->
     $scope.$apply () ->
-      $scope.paymentsList = newPayments.paymentList
+      $scope.paymentsList = newPayments.list
 
   @saveInfo = () ->
     p = new Payments $scope.paymentsList

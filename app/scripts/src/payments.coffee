@@ -71,7 +71,7 @@ class window.Payments
     promises = []
     _.each groups, (group, date) =>
       current = new Payments group
-      promise = @constructor.load date
+      promise = @constructor.load {from: date}
       promises.push promise.then (previous) =>
         @constructor.difference(current, previous).storeAll()
     Promise.all(promises).then (stored) => @constructor.flatten(stored)
@@ -89,10 +89,13 @@ class window.Payments
       result.push payments
     new Payments _.flatten result
 
-  @load: (from, to = from) ->
+  @load: (options) ->
+    {from, to} = options if options
+    to = from if !to
     predicate = do (from, to) ->
       validPrefix = (key) -> key.indexOf(keyPrefix) == 0
       validDate = (key) -> dateBetween key.split('/')[1], from, to
+
       if !from || !to then validDate = (key) -> true
       (key) -> validPrefix(key) && validDate(key)
     localforage.keys().then (keys) ->

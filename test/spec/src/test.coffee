@@ -135,7 +135,7 @@ describe 'Payments', () ->
         payments2.storeDiff().then () ->
           new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT))
         .then () ->
-          payments = Payments.load('2013-11-13').then (payments) ->
+          payments = Payments.load({from: '2013-11-13'}).then (payments) ->
             payments.list.should.have.length 3
             payments.list.should.contain.a.thing.with.property 'guid', extra.guid
 
@@ -152,7 +152,7 @@ describe 'Payments', () ->
           stored.should.be.an.instanceof Payments
           stored.list.should.have.length 2
 
-  describe 'Payments.load(from, to)', () ->
+  describe 'Payments.load(options)', () ->
     beforeEach (done) ->
       promises = []
       @data.forEach (payment) ->
@@ -166,7 +166,7 @@ describe 'Payments', () ->
       Payments.load().should.eventually.be.an.instanceof Payments
 
     it 'should losslessly load a previously saved list of payments for a particular date', () ->
-      Payments.load('2013-11-13').then (payments) =>
+      Payments.load({from: '2013-11-13'}).then (payments) =>
         payments.list.should.have.length 2
         payments.isEquivalent(new Payments @data[1..2]).should.be.true
 

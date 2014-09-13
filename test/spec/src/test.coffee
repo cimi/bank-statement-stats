@@ -1,5 +1,5 @@
 # global describe, it
-TIMEOUT = 100 # milliseconds
+TIMEOUT = 20 # milliseconds
 createDateString = (date) ->
   moment(date).format('YYYY-MM-DD');
 
@@ -32,7 +32,7 @@ sampleData = [
 data = []
 describe 'Payment', () ->
   beforeEach (done) ->
-    data = _.clone sampleData
+    data = new Payments(sampleData).clone().list
     localforage.clear().then () -> done()
 
   describe 'constructor(options)', () ->
@@ -57,7 +57,7 @@ describe 'Payment', () ->
 
   describe 'getKey()', () ->
     it 'should generate key string "payments/<date>/<guid>"', () ->
-      payment = sampleData[0]
+      payment = new Payment sampleData[0]
       payment.date = new Date()
       expected = moment(payment.date).format('YYYY-MM-DD')
       payment.getKey().should.equal 'payments/' + expected + '/' + payment.guid
@@ -77,7 +77,7 @@ describe 'Payment', () ->
 describe 'Payments', () ->
   beforeEach (done) ->
     localforage.clear().then () -> done()
-    @data = _.clone sampleData
+    @data = new Payments(sampleData).clone().list
 
   describe 'constructor(@list)', () ->
     it 'should create a defensive copy of the list received', () ->
@@ -150,7 +150,7 @@ describe 'Payments', () ->
       .then () ->
         payments2.storeDiff().then (stored) ->
           stored.should.be.an.instanceof Payments
-          stored.list.should.have.length 2
+          stored.list.should.have.length 1
 
   describe 'Payments.load(options)', () ->
     beforeEach (done) ->
@@ -169,6 +169,43 @@ describe 'Payments', () ->
       Payments.load({from: '2013-11-13'}).then (payments) =>
         payments.list.should.have.length 2
         payments.isEquivalent(new Payments @data[1..2]).should.be.true
+
+    it 'should only return uncategorized payments if so requested', () ->
+      payment = new Payment @data[0]
+      payment.category = "category"
+      localforage.setItem(payment.getKey(), payment).then () =>
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT)).then () =>
+          Payments.load({categorized: false}).then (payments) =>
+            payments.list.should.have.length 3
+            payments.isEquivalent(new Payments @data[1..3]).should.be.true
+
+    it 'should only return categorized payments if so requested', () ->
+      payment = new Payment @data[0]
+      payment.category = "category"
+      localforage.setItem(payment.getKey(), payment).then () =>
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT)).then () =>
+          Payments.load({categorized: true}).then (payments) =>
+            payments.list.should.have.length 1
+            payments.isEquivalent(new Payments [payment]).should.be.true
+
+    it 'should only return untagged payments if so requested', () ->
+      payment = new Payment @data[0]
+      payment.tags = ["tag"]
+      localforage.setItem(payment.getKey(), payment).then () =>
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT)).then () =>
+          Payments.load({tagged: false}).then (payments) =>
+            payments.list.should.have.length 3
+            payments.isEquivalent(new Payments @data[1..3]).should.be.true
+    it 'should only return tagged payments if so requested', () ->
+      payment = new Payment @data[0]
+      payment.tags = ["tag"]
+      localforage.setItem(payment.getKey(), payment).then () =>
+        new Promise((resolve, reject) -> setTimeout(resolve, TIMEOUT)).then () =>
+          Payments.load({tagged: true}).then (payments) =>
+            payments.list.should.have.length 1
+            payments.isEquivalent(new Payments [payment]).should.be.true
+
+      # TODO: write this test, I'm lazy
 
   describe 'Payments.getCount', () ->
     it 'should return the total number of payments stored', () ->

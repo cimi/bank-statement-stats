@@ -15,7 +15,6 @@ keyPrefix = 'payments/'
 class window.Payment
   constructor: (options) ->
     {@date, @name, @ammount, @balance, @guid, @seen, @category, @tags} = options
-    @seen = new Date() if !@seen
     @guid = guid() if !@guid
     @category = '' if !@category
     @tags = [] if !@tags
@@ -90,17 +89,22 @@ class window.Payments
     new Payments _.flatten result
 
   @load: (options) ->
-    {from, to} = options if options
+    {from, to, categorized, tagged} = options if options
     to = from if !to
     predicate = do (from, to) ->
       validPrefix = (key) -> key.indexOf(keyPrefix) == 0
-      validDate = (key) -> dateBetween key.split('/')[1], from, to
-
-      if !from || !to then validDate = (key) -> true
+      validDate = (key) ->
+        if !from || !to then true else dateBetween key.split('/')[1], from, to
       (key) -> validPrefix(key) && validDate(key)
     localforage.keys().then (keys) ->
       filteredKeys = _.filter keys, (key) -> predicate key
-      promisePayments(filteredKeys)
+      promisePayments(filteredKeys).then (payments) -> new Payments payments.list.filter (payment) ->
+        categoryFilter = (payment) ->
+          if categorized != undefined then categorized == (payment.category != '') else true
+        tagFilter = (payment) ->
+          if tagged != undefined then tagged == (payment.tags.length >= 1) else true
+        categoryFilter(payment) && tagFilter(payment)
+
 
   @getCount: () ->
     localforage.keys().then (keys) ->

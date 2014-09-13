@@ -75,7 +75,6 @@ describe 'Payment', () ->
       payment.store().should.eventually.deep.equal payment
 
 describe 'Payments', () ->
-
   beforeEach (done) ->
     localforage.clear().then () -> done()
     @data = _.clone sampleData
@@ -85,6 +84,18 @@ describe 'Payments', () ->
       payments = new Payments @data
       @data.push @data[0]
       payments.list.should.have.length 4
+
+  describe 'clone()', () ->
+    it 'should return a new collection with a copy of all the elments in the original one', () ->
+      payments = new Payments @data
+      cloned = payments.clone()
+
+      cloned.list.shift()
+      payments.list.should.have.length 4
+      cloned.list.should.have.length 3
+
+      payments.list[1].name = 'Some other payment'
+      cloned.list[0].name.should.equal 'Some payment'
 
   describe 'isEquivalent(other)', () ->
     it 'should return true if individual payments are equivalent', () ->

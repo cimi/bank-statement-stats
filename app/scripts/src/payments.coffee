@@ -49,7 +49,7 @@ class window.Payments
 
   constructor: (list) -> @list = _.clone(list)
 
-  clone: () -> new Payments @list
+  clone: () -> new Payments @list.map (payment) -> new Payment(payment)
 
   isEquivalent: (other) ->
     equivalent = true

@@ -43,3 +43,11 @@ describe "Pattern", () ->
       categorized.list[0].tags.should.deep.equal ["tag1", "tag2"]
       categorized.list[1].tags.should.deep.equal ["tag1", "tag2"]
       categorized.list[2].tags.should.deep.equal []
+
+    it 'should not change the initial collection provided, it should return a new one', () ->
+      pattern = new Pattern(/Some .*/, "category", ["tag1", "tag2"])
+      payments = new Payments(sampleData)
+      categorized = pattern.categorize(payments)
+      payments.list[0].category.should.equal ''
+      payments.list[0].tags.should.deep.equal []
+
